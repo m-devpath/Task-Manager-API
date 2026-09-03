@@ -1,7 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
-import authRoutes from "./routes/auth.routes.js";
+import authRoutes from "./routes/auth.route.js";
+import taskRouter from "./routes/task.route.js";
 
 dotenv.config();
 
@@ -12,9 +13,10 @@ await connectDB();
 
 app.use(express.json());
 app.use('/api/auth', authRoutes);
+app.use('/api/task', taskRouter);
 
 app.get('/', (req, res) => {
-    console.log("Task Manager API is running!");
+    res.send("Task Manager API is running!");
 });
 
 app.listen(PORT, () => {
