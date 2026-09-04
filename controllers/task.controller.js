@@ -1,10 +1,17 @@
 import Task from "../models/task.model.js";
 
 // Create a new task 
-export const createTask = async (req, res) => {
+export const createTask = async (req, res, next) => {
     try {
         
         const { title , description, status, dueDate } = req.body;
+
+        if(!title){
+            return res.status(400).json({
+                success: false,
+                message: 'Title is required'
+            });
+        }
 
         const task = await Task.create({
             title, 
@@ -17,26 +24,24 @@ export const createTask = async (req, res) => {
         res.status(201).json({ success: true, data: task });
 
     } catch (error) {
-        console.error('Create Task Error: ', error);
-        res.status(500).json({ success: false, message: 'Server error while creating task'});
+       next(error);
     }
 };
 
 // Get all tasks belonging to logged-in user
-export const getTasks = async (req, res) => {
+export const getTasks = async (req, res, next) => {
     try {
         const tasks = await Task.find({user: req.user._id});
 
         res.status(200).json({ success: true, count: tasks.length, data: tasks });
 
     } catch (error) {
-        console.error('Get Tasks Error: ', error);
-        res.status(500).json({ success: false, message: 'Server error while fetching tasks'});
+        next(error);
     }
 };
 
 // Get a single task by id with ownership check
-export const getTask = async (req, res) => {
+export const getTask = async (req, res, next) => {
     try {
         const task = await Task.findById(req.params.id);
 
@@ -50,12 +55,11 @@ export const getTask = async (req, res) => {
 
         res.status(200).json({ success: true, data: task });
     } catch (error) {
-        console.error('Get Task Error:', error);
-        res.status(500).json({ success: false, message: 'Server error while fetching task' });
+       next(error);
     }
 };
 
-export const updateTask = async (req, res) => {
+export const updateTask = async (req, res, next) => {
     try {
         
         const task = await Task.findById(req.params.id);
@@ -80,12 +84,11 @@ export const updateTask = async (req, res) => {
         res.status(200).json({ success: true, data: updatedTask });
 
     } catch (error) {
-        console.error('Update Task Error:', error);
-        res.status(500).json({ success: false, message: 'Server error while fetching task' });
+        next(error);
     }
 };
 
-export const deleteTask = async (req, res) => {
+export const deleteTask = async (req, res, next) => {
     try {
         const task = await Task.findById(req.params.id);
 
@@ -102,7 +105,6 @@ export const deleteTask = async (req, res) => {
         res.status(200).json({ success: true, message: 'Task deleted successfully' });
 
     } catch (error) {
-        console.error('Delete Task Error:', error);
-        res.status(500).json({ success: false, message: 'Server error while fetching task' });
+       next(error);
     }
 };

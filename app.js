@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/auth.route.js";
 import taskRouter from "./routes/task.route.js";
+import { errorHandler } from "./middlewares/error.middleware.js";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.get('/', (req, res) => {
     res.send("Task Manager API is running!");
 });
 
+app.use(errorHandler);
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });

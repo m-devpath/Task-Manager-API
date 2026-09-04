@@ -11,12 +11,26 @@ const generateToken = (userId) => {
 
 
 // Register Controller 
-export const register = async (req, res) => {
+export const register = async (req, res, next) => {
     try {
 
         // Get user input from the request body
         const { name, email, password } = req.body;
 
+        // Validate input before any DB call
+        if(!name || !email || !password){
+            return res.status(400).json({
+                success: false, 
+                message: 'Please provide name, email, and password'
+            });
+        }
+
+        if(password.length < 6){
+            return res.status(400).json({
+                success: false,
+                message: 'Password must be at least 6 characters'
+            });
+        }
         
         // Check if the user already exists (to avoid duplicates)
         const existingUser = await User.findOne({ email });
@@ -46,17 +60,23 @@ export const register = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Register Error:', error);
-        res.status(500).json({ success: false, message: 'Server error during registeration'});
+        next(error);
     }
 };
 
 
 // Login Controller 
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
     try {
 
         const { email, password } = req.body;
+
+        if(!email || !password){
+            return res.status(400).json({
+                success: false, 
+                message: 'Invalid Email or Password'
+            });
+        }
 
         // Find user by email and force include using password 
         const user = await User.findOne({ email }).select('+password');
@@ -75,7 +95,7 @@ export const login = async (req, res) => {
         //Generate jwt token 
         const token = generateToken(user._id);
 
-        res.status(201).json({ 
+        res.status(200).json({ 
             success: true,
             message: 'User Login Successfully', 
             token,
@@ -87,8 +107,7 @@ export const login = async (req, res) => {
         });
         
     } catch (error) {
-        console.error('Login Error:', error);
-        res.status(500).json({ success: false, message: 'Server error during login'});
+       next(error);
     }
 };
 
